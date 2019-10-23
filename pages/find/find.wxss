@@ -1,0 +1,29 @@
+/* pages/find/find.wxss */
+
+.selectArea {
+
+  width: 800px;
+
+  height: 320px;
+}
+.showArea {
+  width: 800px;
+
+}
+.existArea {
+
+}
+
+.abimg {
+  width: 40px;
+  height: 40px;
+}
+
+.btnArea{
+  display: flex;
+  margin-bottom: 10px;
+}
+.btnArea button{
+  height: 26px;
+  line-height: 26px;
+}

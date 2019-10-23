@@ -1,0 +1,41 @@
+<view>
+  <view class="section">
+    <picker bindchange="bindPickerChange" value="{{index}}" range="{{array}}">
+      <view class="picker">
+        宝宝：{{array[index]}} （点击选择）
+      </view>
+    </picker>
+  </view>
+
+  <scroll-view scroll-x="true">
+    <view class="selectArea" bindtap="selectedHandler">
+      <image class="abimg" wx:for="{{imgs}}" src="/{{item.imgUrl}}" wx:key="{{item}}" data-name="{{item.name}}"></image>
+    </view>
+  </scroll-view>
+
+  <view class="btnArea">
+    <button type="primary" bindtap="clearAbsHandler">清空技能</button>
+    <button type="warn" bindtap="submitHandler">提交数据</button>
+  </view>
+
+  <scroll-view scroll-x="true" style=" white-space: nowrap; display: flex ; ">
+    <view class="existArea" bindtap="deleteHandler">
+      <image wx:for="{{showAbs}}" wx:key="{{item}}" style="display: inline-block" data-newid="{{index}}" src="/{{item.imgUrl}}" class="abimg">
+      </image>
+    </view>
+  </scroll-view>
+
+  <scroll-view scroll-x="true">
+    <view class="showArea">
+      <view wx:for="{{resBB}}" wx:key="{{item}}">
+        {{item.name}}|
+
+        <image wx:for="{{item.newAbs}}" wx:for-index="absInd" wx:for-item="absItm" src="/{{absItm.imgUrl}}" wx:key="{{absItm}}" class="abimg"></image>
+
+      </view>
+
+    </view>
+  </scroll-view>
+
+
+</view>
