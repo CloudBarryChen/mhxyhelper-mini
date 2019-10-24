@@ -14,8 +14,8 @@
   </scroll-view>
 
   <view class="btnArea">
-    <button type="primary" bindtap="clearAbsHandler">清空技能</button>
-    <button type="warn" bindtap="submitHandler">提交数据</button>
+    <button bindtap="clearAbsHandler">清空技能</button>
+    <button bindtap="submitHandler">提交数据</button>
   </view>
 
   <scroll-view scroll-x="true" style=" white-space: nowrap; display: flex ; ">

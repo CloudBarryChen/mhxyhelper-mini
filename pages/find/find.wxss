@@ -24,6 +24,13 @@
   margin-bottom: 10px;
 }
 .btnArea button{
-  height: 26px;
-  line-height: 26px;
+  height: 28px;
+  line-height: 28px;
+  background-color: #690a22;
+  color: white;
+  border-radius: 14px;
+}
+
+.btnHover{
+  background-color: #b86277;
 }

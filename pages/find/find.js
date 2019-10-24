@@ -2,7 +2,7 @@
 var absData = require('../../data/AbilityModel.js');
 var bbData = require('../../data/BBModel.js');
 var bbsData = require('../../data/bbsModel.js');
-
+// console.log(bbData)
 Page({
 
   /**
@@ -38,8 +38,8 @@ Page({
       index: e.detail.value,
       selectedBB: selectedBB
     }, () => {
-      console.log(this.data.index)
-      console.log(this.data.selectedBB)
+      // console.log(this.data.index)
+      // console.log(this.data.selectedBB)
     })
   },
 
@@ -49,11 +49,24 @@ Page({
     bbsData.bbsModel.forEach((item) => {
       arr.push(item.name)
     })
+    // console.log(bbData);
     wx.getStorage({
       key: 'bbdata',
       success: (res) => {
-        var newbbData = res.data.concat(bbData.BBModel)
-        console.log(newbbData)
+        if (Array.isArray(res.data)) {
+          var newbbData = res.data.concat(bbData.BBModel)
+          // console.log(newbbData)
+          this.setData({
+            imgs: absData.AbilityModel,
+            BB: newbbData,
+            array: arr,
+          })
+        }
+      },
+      fail: (res) => {
+        // console.log(res)
+        var newbbData = bbData.BBModel
+        // console.log(newbbData)
         this.setData({
           imgs: absData.AbilityModel,
           BB: newbbData,
@@ -64,6 +77,7 @@ Page({
 
   },
 
+  //显示已选择的技能的图标
   showAbs: function() {
     var newAbs = this.getAbsIcons(this.data.selectedAbs);
     // console.log(newAbs)
@@ -74,43 +88,81 @@ Page({
     })
 
   },
+
+  //保存数据到本地
   storeData: function() {
-
-
     var arr = [];
     var selectedBB = this.data.selectedBB;
     var abs = this.data.selectedAbs;
-    arr.push({
-      name: selectedBB,
-      abilities: abs,
+    var abBlank = abs.some((item) => {
+      return item === '空'
     })
-
-    wx.getStorage({
-      key: 'bbdata',
-      success: (res) => {
-        // console.log(res.data)
-        var newArr = arr.concat(res.data);
-        console.log(newArr);
-        wx.setStorage({
-          key: 'bbdata',
-          data: newArr,
-          success: () => {
-            var newbbData = newArr.concat(bbData.BBModel)
-            this.setData({
-              BB: newbbData,
-            })
-            wx.showToast({
-              title: '保存成功',
-              icon: 'success',
-              duration: 2000
+    if (!abBlank) {
+      arr.push({
+        name: selectedBB,
+        abilities: abs,
+      })
+      // console.log(arr)
+      wx.getStorage({
+        key: 'bbdata',
+        success: (res) => {
+          // console.log(res.data)
+          if (Array.isArray(res.data)) {
+            var newArr = arr.concat(res.data);
+            // console.log(newArr);
+            wx.setStorage({
+              key: 'bbdata',
+              data: newArr,
+              success: () => {
+                var newbbData = newArr.concat(bbData.BBModel)
+                this.setData({
+                  BB: newbbData,
+                }, () => {
+                  wx.showToast({
+                    title: '保存成功',
+                    icon: 'success',
+                    duration: 2000
+                  })
+                })
+              }
             })
           }
-        })
-      }
-    })
 
-
+        },
+        fail: () => {
+          var newArr = arr;
+          // console.log(newArr);
+          wx.setStorage({
+            key: 'bbdata',
+            data: newArr,
+            success: () => {
+              var newbbData = newArr.concat(bbData.BBModel)
+              this.setData({
+                BB: newbbData,
+              }, () => {
+                wx.showToast({
+                  title: '保存成功',
+                  icon: 'success',
+                  duration: 2000
+                })
+              })
+            }
+          })
+        },
+        complete: () => {
+          this.clearAbsHandler()
+        }
+      })
+    } else {
+      wx.showToast({
+        title: '技能不能缺省！',
+        icon: 'none',
+        duration: 2000
+      })
+    }
   },
+
+  //提交数据
   submitHandler: function() {
     if (this.data.selectedBB && this.data.selectedAbs.length !== 0) {
       wx.showModal({
@@ -137,15 +189,17 @@ Page({
       })
     }
   },
+
+  //删除技能
   deleteHandler: function(e) {
 
     var newID = e.target.dataset.newid;
     if (newID >= 0) {
-      console.log(newID);
+      // console.log(newID);
       var sbs = this.data.selectedAbs;
 
       sbs.splice(newID, 1);
-      console.log(sbs);
+      // console.log(sbs);
       this.setData({
         selectedAbs: sbs
       }, () => {
@@ -155,15 +209,24 @@ Page({
     }
   },
 
+  //清空技能
   clearAbsHandler: function() {
     this.setData({
-      selectedAbs: []
+      selectedAbs: [],
+      resBB: [],
+      showAbs: []
     }, () => {
       this.searchShow(this.getAbs());
-      this.showAbs()
+      this.showAbs();
+      wx.showToast({
+        title: '清空成功',
+        icon: 'none',
+        duration: 1000
+      })
     })
   },
 
+  //选择技能
   selectedHandler: function(e) {
     // console.log(e.target)
     // console.log(this.data.selectedAbs)
@@ -188,8 +251,7 @@ Page({
 
   },
 
-
-
+  //技能检查
   checkAbs: function(existAbs, checkAbs, existName, checkName) {
     if (checkName === '' && checkAbs.length === 0) {
       return false;
@@ -206,6 +268,7 @@ Page({
     return true;
   },
 
+  //宝宝筛选
   dataFilter: function(obj) {
     // console.log(obj);
     return this.data.BB.filter((item) => {
@@ -223,8 +286,10 @@ Page({
     res.forEach(element => {
 
       var newAbs = this.getAbsIcons(element.abilities);
+
       element['newAbs'] = newAbs;
     });
+    console.log(res)
     this.setData({
       resBB: res,
     }, () => {
@@ -238,6 +303,7 @@ Page({
     })
   },
 
+  //返回带图片url的技能数组
   getAbsIcons: function(abs) {
     // console.log(this.data.newAbs);
     var newAbs = [];
